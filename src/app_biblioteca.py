@@ -39,6 +39,14 @@ BIBLIOTECA: Final[Biblioteca] = Biblioteca(
     ],
     livros = [
         Livro (
+            titulo='L1',
+            editora='ED1',
+            renovacoes_permitidas=2,
+            generos=['G2'],
+            exemplares=[Exemplar(2)],
+            autores=['AT1']
+        ),
+        Livro (
             titulo='Crime e Castigo',
             editora='Martin Claret',
             renovacoes_permitidas=0,

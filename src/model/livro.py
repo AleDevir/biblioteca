@@ -43,7 +43,7 @@ class Livro(Base):
         Retorna o exemplar retirado.
         '''
         if not self.exemplares:
-            raise ValueError ('Não existe exemplares disponíveis para o emrestimo.')
+            raise ValueError ('\tNão existe exemplares disponíveis para o emrestimo.')
         return self.exemplares.pop()
 
     def renovar_emprestimo_exemplar(self, exemplar: Exemplar) -> None:
@@ -51,10 +51,10 @@ class Livro(Base):
         Renova o empréstimo do exemplar após as validações.
         '''
         if self.renovacoes_permitidas == 0:
-            raise ValueError(f'Não é possível renovar o empréstimo do livro {self.titulo}. Este livro não possui renovação.') # pylint: disable=line-too-long
+            raise ValueError(f'\tNão é possível renovar o empréstimo do livro {self.titulo}. Este livro não possui renovação.') # pylint: disable=line-too-long
 
         if not exemplar.pode_renovar(self.renovacoes_permitidas):
-            raise ValueError(f'Não é possível renovar o empréstimo do livro {self.titulo}. Você já atingiu o limite máximo de renovações permitidas.') # pylint: disable=line-too-long
+            raise ValueError(f'\tNão é possível renovar o empréstimo do livro {self.titulo}. Você já atingiu o limite máximo de renovações permitidas.') # pylint: disable=line-too-long
 
         exemplar.acrescentar_numero_renovacoes()
 
