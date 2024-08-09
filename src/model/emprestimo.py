@@ -40,7 +40,7 @@ class Emprestimo(Base):
         Devolve um exemplar do livro emprestado na biblioteca
         '''
         if self.estado == DEVOLVIDO:
-            raise ValueError(f'Operação não permitida! O {self.livro.titulo} já foi devolvido ao acervo da biblioteca.') # pylint: disable=line-too-long
+            raise ValueError(f'\tOperação não permitida! O {self.livro.titulo} já foi devolvido ao acervo da biblioteca.') # pylint: disable=line-too-long
         self.data_devolucao = datetime.now()
         self.estado = DEVOLVIDO
         print(f'...................{self.exemplar.identificacao}')
@@ -51,6 +51,6 @@ class Emprestimo(Base):
         Renova o emprestimo do exemplar do livro emprestado pela biblioteca.
         '''
         if self.estado == DEVOLVIDO:
-            raise ValueError(f'Operação não permitida! O {self.livro.titulo} já foi devolvido ao acervo da biblioteca.')
+            raise ValueError(f'\tOperação não permitida! O {self.livro.titulo} já foi devolvido ao acervo da biblioteca.') # pylint: disable=line-too-long
 
         self.livro.renovar_emprestimo_exemplar(self.exemplar)

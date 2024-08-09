@@ -34,7 +34,7 @@ class Biblioteca(Base):
         '''
         usuarios = [u for u in self.usuarios if u.nome.lower() == nome_usuario.lower()]
         if not usuarios:
-            raise ValueError(f'O usuário |{nome_usuario}| não possui cadastro na Biblioteca.')
+            raise ValueError(f'\tO usuário |{nome_usuario}| não possui cadastro na Biblioteca.')
 
         return usuarios[0]
 
@@ -45,7 +45,7 @@ class Biblioteca(Base):
         '''
         livros = [l for l in self.livros if l.titulo.lower() == titulo_livro.lower()]
         if not livros:
-            raise ValueError(f'O livro |{titulo_livro}| não faz parte do acervo da Biblioteca.')
+            raise ValueError(f'\tO livro |{titulo_livro}| não faz parte do acervo da Biblioteca.')
 
         return livros[0]
 
@@ -58,7 +58,7 @@ class Biblioteca(Base):
         livro: Livro = self.get_livro_por_titulo(titulo_livro)
 
         if not livro.possui_exemplar_disponivel:
-            raise ValueError(f'O livro {livro.titulo} não possui exemplares disponíveis para empréstimo.') # pylint: disable=line-too-long
+            raise ValueError(f'\tO livro {livro.titulo} não possui exemplares disponíveis para empréstimo.') # pylint: disable=line-too-long
 
         exemplar: Exemplar = livro.retirar_exemplar()
 
@@ -87,7 +87,7 @@ class Biblioteca(Base):
                 emprestimo.estado == EMPRESTADO
             ):
                 return emprestimo
-        raise ValueError(f"O emprestimo do usuário {usuario.nome} do livro {livro.titulo} não foi encontrado para o exemplar {identificacao_exemplar}.") # pylint: disable=line-too-long
+        raise ValueError(f"\tO emprestimo do usuário {usuario.nome} do livro {livro.titulo} não foi encontrado para o exemplar {identificacao_exemplar}.") # pylint: disable=line-too-long
 
     def devolver_emprestimo(
             self,

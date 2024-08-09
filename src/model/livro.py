@@ -1,8 +1,11 @@
 '''
 modelo Livro
 '''
+from abc import abstractmethod
 from src.model.base import Base
+from src.model.autor import Autor
 from src.model.exemplar import Exemplar
+from src.model.genero import Genero
 
 class Livro(Base):
     '''
@@ -12,10 +15,10 @@ class Livro(Base):
             self,
             titulo: str,
             editora: str,
-            renovacoes_permitidas: int,
-            generos: list[str],
+            generos: list[Genero],
             exemplares: list[Exemplar],
-            autores: list[str]
+            autores: list[Autor],
+            renovacoes_permitidas: int = 0,
         ) -> None:
         '''
         Inicialização
@@ -23,10 +26,10 @@ class Livro(Base):
         super().__init__()
         self.titulo: str = titulo
         self.editora: str = editora
-        self.renovacoes_permitidas: int = renovacoes_permitidas
-        self.generos: list[str] = generos
+        self.generos: list[Genero] = generos
         self.exemplares: list[Exemplar] = exemplares
-        self.autores: list[str] = autores
+        self.autores: list[Autor] = autores
+        self.renovacoes_permitidas: int = renovacoes_permitidas
 
     @property
     def possui_exemplar_disponivel(self) -> bool:
@@ -43,20 +46,22 @@ class Livro(Base):
         Retorna o exemplar retirado.
         '''
         if not self.exemplares:
-            raise ValueError ('Não existe exemplares disponíveis para o emrestimo.')
+            raise ValueError ('\tNão existe exemplares disponíveis para o emrestimo.')
         return self.exemplares.pop()
 
+
+    @abstractmethod
+    def pode_ser_renovado(self) -> bool:
+        '''
+        Informa se o livro é renovável.
+        '''
+
+    @abstractmethod
     def renovar_emprestimo_exemplar(self, exemplar: Exemplar) -> None:
         '''
         Renova o empréstimo do exemplar após as validações.
         '''
-        if self.renovacoes_permitidas == 0:
-            raise ValueError(f'Não é possível renovar o empréstimo do livro {self.titulo}. Este livro não possui renovação.') # pylint: disable=line-too-long
 
-        if not exemplar.pode_renovar(self.renovacoes_permitidas):
-            raise ValueError(f'Não é possível renovar o empréstimo do livro {self.titulo}. Você já atingiu o limite máximo de renovações permitidas.') # pylint: disable=line-too-long
-
-        exemplar.acrescentar_numero_renovacoes()
 
     def devolver_exemplar(self, id_exemplar: int) -> None:
         '''

@@ -13,7 +13,11 @@ import locale
 from src.model.usuario import Usuario
 from src.model.emprestimo import Emprestimo
 from src.model.livro import Livro
+from src.model.livro_nao_renovavel import LivroNaoRenovavel
+from src.model.livro_renovavel import LivroRenovavel
+from src.model.autor import Autor
 from src.model.exemplar import Exemplar
+from src.model.genero import Genero
 from src.model.biblioteca import Biblioteca
 
 
@@ -38,21 +42,28 @@ BIBLIOTECA: Final[Biblioteca] = Biblioteca(
         Usuario('Amana', '333333333', 'brasileira')
     ],
     livros = [
-        Livro (
+        LivroRenovavel(
+            titulo='L1',
+            editora='BookBook',
+            generos=[Genero('Terror')],
+            exemplares=[Exemplar(2)],
+            autores=[Autor('Anônimo')],
+            renovacoes_permitidas=2,
+        ),
+        LivroNaoRenovavel(
             titulo='Crime e Castigo',
             editora='Martin Claret',
-            renovacoes_permitidas=0,
-            generos=['Romance', 'Suspense', 'Ficção filosófica'],
+            generos=[Genero('Romance'), Genero('Suspense'), Genero('Ficção filosófica')],
             exemplares=[Exemplar(1)],
-            autores=['Fiódor Dostoiévski']
+            autores=[Autor('Fiódor Dostoiévski')]
         ),
-        Livro (
+        LivroRenovavel(
             titulo='Zadig ou o Destino',
             editora='L&PM POCKET',
-            renovacoes_permitidas=3,
-            generos=['Romance', 'Suspense', 'Ficção filosófica'],
+            generos=[Genero('Romance'), Genero('Suspense'), Genero('Ficção filosófica')],
             exemplares=[Exemplar(1)],
-            autores=['Voltaire']
+            autores=[Autor('Voltaire')],
+            renovacoes_permitidas=3,
         )
     ]
 )
@@ -211,8 +222,8 @@ def emprestar() -> None:
                 {bright_amarelo('Nome do usuário: ')}{nome}
                 {bright_amarelo('Título: ')}{titulo}
                 {bright_amarelo('Editora: ')}{editora}
-                {bright_amarelo('Autor(s): ')}{', '.join(autores)}
-                {bright_amarelo('Gêneros: ')}{', '.join(generos)}
+                {bright_amarelo('Autor(s): ')}{', '.join([a.nome for a in autores])}
+                {bright_amarelo('Gêneros: ')}{', '.join([g.nome for g in generos])}
                 {bright_amarelo('Data do empréstimo: ')}{data}
                 {bright_amarelo('Número do exemplar: ')}{identificador_exemplar}
                 {bright_amarelo(LINHA_PONTILHADA)}
@@ -250,8 +261,8 @@ def renovar() -> None:
                 {bright_amarelo('Nome do usuário: ')}{renovar_emprestimo.usuario.nome}
                 {bright_amarelo('Título: ')}{renovar_emprestimo.livro.titulo}
                 {bright_amarelo('Editora: ')}{renovar_emprestimo.livro.editora}
-                {bright_amarelo('Autor(s): ')}{', '.join(autores)}
-                {bright_amarelo('Gêneros: ')}{', '.join(generos)}
+                {bright_amarelo('Autor(s): ')}{', '.join([a.nome for a in autores])}
+                {bright_amarelo('Gêneros: ')}{', '.join([g.nome for g in generos])}
                 {bright_amarelo('Data da renovação do empréstimo: ')}{data}
                 {bright_amarelo('Número do exemplar: ')}{identificador_exemplar}
                 {bright_amarelo(LINHA_PONTILHADA)}
@@ -289,8 +300,8 @@ def devolver() -> None:
                 {bright_amarelo('Nome do usuário: ')}{devolver_emprestimo.usuario.nome}
                 {bright_amarelo('Título: ')}{devolver_emprestimo.livro.titulo}
                 {bright_amarelo('Editora: ')}{devolver_emprestimo.livro.editora}
-                {bright_amarelo('Autor(s): ')}{', '.join(autores)}
-                {bright_amarelo('Gêneros: ')}{', '.join(generos)}
+                {bright_amarelo('Autor(s): ')}{', '.join([a.nome for a in autores])}
+                {bright_amarelo('Gêneros: ')}{', '.join([g.nome for g in generos])}
                 {bright_amarelo('Data da devolução do empréstimo: ')}{data}
                 {bright_amarelo('Número do exemplar: ')}{identificador_exemplar}
                 {bright_amarelo(LINHA_PONTILHADA)}
