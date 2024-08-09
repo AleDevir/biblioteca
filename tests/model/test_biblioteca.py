@@ -18,9 +18,9 @@ from src.model.genero import Genero
 from src.model.biblioteca import Biblioteca
 
 
-USUARIO_1: Final[str] = Usuario('Alessandra', '222222222', 'brasileira')
-USUARIO_2: Final[str] = Usuario('Elanor', '222222222', 'neozelandes')
-USUARIO_3: Final[str] = Usuario('Amana', '333333333', 'brasileira')
+USUARIO_1: Final[str] = Usuario('Alessandra', '222222222', 'brasileira', identificacao=1)
+USUARIO_2: Final[str] = Usuario('Elanor', '222222222', 'neozelandes', identificacao=2)
+USUARIO_3: Final[str] = Usuario('Amana', '333333333', 'brasileira', identificacao=3)
 
 LIVRO_1: Final[str] = LivroRenovavel(
     titulo='Os irmãos Karamázov',
@@ -29,6 +29,7 @@ LIVRO_1: Final[str] = LivroRenovavel(
     exemplares=[Exemplar(1), Exemplar(2), Exemplar(3)],
     autores=[Autor('Fiódor Dostoiévski')],
     renovacoes_permitidas=1,
+    identificacao=1,
 )
 LIVRO_2: Final[str] = LivroNaoRenovavel(
     titulo='Crime e Castigo',
@@ -36,6 +37,7 @@ LIVRO_2: Final[str] = LivroNaoRenovavel(
     generos=[Genero('Romance'), Genero('Suspense'), Genero('Ficção filosófica')],
     exemplares=[Exemplar(1)],
     autores=[Autor('Fiódor Dostoiévski')],
+    identificacao=2,
 )
 LIVRO_3: Final[str] = LivroRenovavel(
     titulo='Zadig ou o Destinoo',
@@ -44,6 +46,7 @@ LIVRO_3: Final[str] = LivroRenovavel(
     exemplares=[Exemplar(1)],
     autores=[Autor('Voltaire')],
     renovacoes_permitidas=3,
+    identificacao=3,
 )
 
 # Habilita os caracteres ANSI escape no terminal Windows.
@@ -98,7 +101,7 @@ def test_emprestar_e_devolver():
 
 
     # Asserções do realizar empréstimo não são necessárias, pois as mesmas já foram testadas em test_emprestar.
-    biblioteca.devolver_emprestimo(usuario.nome, livro.titulo, identificacao_exemplar)
+    biblioteca.devolver_emprestimo(emprestimo.identificacao)
 
     # O identificador deve VOLTAR para a lista de exemplares disponíveis para emprestar:
     assert identificacao_exemplar in [e.identificacao for e in livro.exemplares]
@@ -129,19 +132,19 @@ def test_emprestar_renovar_e_devolver():
 
     # Asserções do realizar empréstimo não são necessárias, pois as mesmas já forma testadas em test_emprestar.
 
-    biblioteca.renovar_emprestimo(usuario.nome, livro.titulo, identificacao_exemplar)
+    biblioteca.renovar_emprestimo(emprestimo.identificacao)
     assert  len(biblioteca.emprestimos) == 1
     emprestimo: Emprestimo = biblioteca.emprestimos[0]
     assert emprestimo.exemplar.numero_de_renovacoes == 1
 
     try:
-        biblioteca.renovar_emprestimo(usuario.nome, livro.titulo, identificacao_exemplar)
+        biblioteca.renovar_emprestimo(emprestimo.identificacao)
         assert False
     except ValueError as erro:
         assert True
         assert str(erro) == '\tNão é possível renovar o empréstimo do livro Os irmãos Karamázov. Você já atingiu o limite máximo de renovações permitidas.'
 
-    biblioteca.devolver_emprestimo(usuario.nome, livro.titulo, identificacao_exemplar)
+    biblioteca.devolver_emprestimo(emprestimo.identificacao)
 
     # O identificador deve VOLTAR para a lista de exemplares disponíveis para emprestar:
     assert identificacao_exemplar in [e.identificacao for e in livro.exemplares]

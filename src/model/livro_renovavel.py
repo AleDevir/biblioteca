@@ -9,12 +9,6 @@ class LivroRenovavel(Livro):
     Classe livro renovável
     '''
 
-    def pode_ser_renovado(self) -> bool:
-        '''
-        Informa se o livro é renovável.
-        '''
-        return True
-
     def renovar_emprestimo_exemplar(self, exemplar: Exemplar) -> None:
         '''
         Renova o empréstimo do exemplar após as validações.

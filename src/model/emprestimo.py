@@ -22,12 +22,13 @@ class Emprestimo(Base):
             exemplar: Exemplar,
             estado: str = EMPRESTADO,
             data_emprestimo: datetime = datetime.now(),
-            data_devolucao: datetime | None = None
+            data_devolucao: datetime | None = None,
+            identificacao: int = 0,
     ) -> None:
         '''
         Inicialização
         '''
-        super().__init__()
+        super().__init__(identificacao)
         self.usuario: Usuario = usuario
         self.livro: Livro = livro
         self.exemplar: Exemplar = exemplar
