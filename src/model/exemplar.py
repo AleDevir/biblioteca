@@ -15,8 +15,7 @@ class Exemplar(Base):
         '''
         Inicialização
         '''
-        super().__init__()
-        self.identificacao: int = identificacao
+        super().__init__(identificacao)
         self.numero_de_renovacoes: int = numero_de_renovacoes
 
     def acrescentar_numero_renovacoes(self) -> None:

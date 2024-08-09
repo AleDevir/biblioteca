@@ -172,6 +172,26 @@ def escolher_uma_opcao_do_menu_entrada(opcoes_menu_dict: dict[str, str]) -> str:
         ).upper()
     return escolher_opcao
 
+def exibir_ficha(msg: str, emprestimo: Emprestimo) -> None:
+    '''
+    Exibe a ficha com os dados do emprestimo.
+    '''
+    print(f"""
+                {bright_amarelo(LINHA_PONTILHADA)}
+                {bright_amarelo(msg)}
+                {bright_amarelo('Identificação do empréstio: ')} {emprestimo.identificacao}
+                {bright_amarelo('Nome do usuário: ')}{emprestimo.usuario.nome}
+                {bright_amarelo('Título: ')}{emprestimo.livro.titulo}
+                {bright_amarelo('Editora: ')}{emprestimo.livro.editora}
+                {bright_amarelo('Autor(s): ')}{', '.join([a.nome for a in emprestimo.livro.autores])}
+                {bright_amarelo('Gêneros: ')}{', '.join([g.nome for g in emprestimo.livro.generos])}
+                {bright_amarelo('Data do empréstimo: ')}{emprestimo.data_emprestimo}
+                {bright_amarelo('Data da devolução do empréstimo: ')}{emprestimo.data_devolucao if emprestimo.data_devolucao else '-'}
+                {bright_amarelo('Exemplar: ')}{emprestimo.exemplar.identificacao}
+                {bright_amarelo(LINHA_PONTILHADA)}
+    """)
+
+
 ###########################################################
                   # DADOS DE ENTRADA #
 ###########################################################
@@ -206,33 +226,11 @@ def emprestar() -> None:
         usuario_nome = get_nome_usuario()
         livro_titulo = get_livro_titulo()
         emprestimo: Emprestimo = BIBLIOTECA.realizar_emprestimo(usuario_nome, livro_titulo)
-
-        nome = emprestimo.usuario.nome
-        titulo = emprestimo.livro.titulo
-        editora = emprestimo.livro.editora
-        generos = emprestimo.livro.generos
-        autores = emprestimo.livro.autores
-        data = datetime_para_str(emprestimo.data_emprestimo)
-        identificador_exemplar = emprestimo.exemplar.identificacao
-
-
-        print(f"""
-                {bright_amarelo(LINHA_PONTILHADA)}
-                {bright_amarelo('Empréstimo realizado com sucesso! \n')}
-                {bright_amarelo('Nome do usuário: ')}{nome}
-                {bright_amarelo('Título: ')}{titulo}
-                {bright_amarelo('Editora: ')}{editora}
-                {bright_amarelo('Autor(s): ')}{', '.join([a.nome for a in autores])}
-                {bright_amarelo('Gêneros: ')}{', '.join([g.nome for g in generos])}
-                {bright_amarelo('Data do empréstimo: ')}{data}
-                {bright_amarelo('Número do exemplar: ')}{identificador_exemplar}
-                {bright_amarelo(LINHA_PONTILHADA)}
-        """)
-
+        exibir_ficha('Empréstimo realizado com sucesso! \n', emprestimo)
     except ValueError as erro:
         print(bright_vermelho('\n\tNão foi possível realizar a operação de empréstimo.')) # pylint: disable=line-too-long
-        # print(bright_vermelho(f'\n\t{str(erro)}'))
-        print(str(erro))
+        print(bright_vermelho(f'\n\t{str(erro)}'))
+
 
 ###########################################################
                   # RENOVAR #
@@ -242,36 +240,14 @@ def renovar() -> None:
     Fluxo do renovar empréstimo
     '''
     try:
-        usuario_nome = get_nome_usuario()
-        livro_titulo = get_livro_titulo()
-        numero_do_exemplar = input_int('\n\tEntre com o número do exemplar: ')
+        identificacao_emprestimo = input_int('\n\tEntre com a identificação do empréstimo: ')
 
-        renovar_emprestimo: Emprestimo = BIBLIOTECA.renovar_emprestimo(
-            usuario_nome,
-            livro_titulo,
-            numero_do_exemplar
-        )
-        generos = renovar_emprestimo.livro.generos
-        autores = renovar_emprestimo.livro.autores
-        data = datetime_para_str(renovar_emprestimo.data_emprestimo)
-        identificador_exemplar = renovar_emprestimo.exemplar.identificacao
-        print(f"""
-                {bright_amarelo(LINHA_PONTILHADA)}
-                {bright_amarelo('Renovação do empréstimo realizada com sucesso!\n')}
-                {bright_amarelo('Nome do usuário: ')}{renovar_emprestimo.usuario.nome}
-                {bright_amarelo('Título: ')}{renovar_emprestimo.livro.titulo}
-                {bright_amarelo('Editora: ')}{renovar_emprestimo.livro.editora}
-                {bright_amarelo('Autor(s): ')}{', '.join([a.nome for a in autores])}
-                {bright_amarelo('Gêneros: ')}{', '.join([g.nome for g in generos])}
-                {bright_amarelo('Data da renovação do empréstimo: ')}{data}
-                {bright_amarelo('Número do exemplar: ')}{identificador_exemplar}
-                {bright_amarelo(LINHA_PONTILHADA)}
-        """)
+        emprestimo: Emprestimo = BIBLIOTECA.renovar_emprestimo(identificacao_emprestimo)
+        exibir_ficha('Renovação do empréstimo realizada com sucesso! \n', emprestimo)
     except ValueError as erro:
         print(bright_vermelho('\n\tNão foi possível realizar a operação de renovação do empréstimo.')) # pylint: disable=line-too-long
-        # print(bright_vermelho(f'\n\t{str(erro)}'))
-        print(str(erro))
-
+        print(bright_vermelho(f'\n\t{str(erro)}'))
+        
 ###########################################################
                   # DEVOLVER #
 ###########################################################
@@ -280,36 +256,14 @@ def devolver() -> None:
     Fluxo de devolver empréstimo.
     '''
     try:
-        usuario_nome = get_nome_usuario()
-        livro_titulo = get_livro_titulo()
-        numero_do_exemplar = input_int('\n\tEntre com o número do exemplar: ')
+        identificacao_emprestimo = input_int('\n\tEntre com a identificação do empréstimo: ')
 
-        devolver_emprestimo: Emprestimo = BIBLIOTECA.devolver_emprestimo(
-            usuario_nome,
-            livro_titulo,
-            numero_do_exemplar
-        )
-
-        generos = devolver_emprestimo.livro.generos
-        autores = devolver_emprestimo.livro.autores
-        data = datetime_para_str(devolver_emprestimo.data_devolucao)
-        identificador_exemplar = devolver_emprestimo.exemplar.identificacao
-        print(f"""
-                {bright_amarelo(LINHA_PONTILHADA)}
-                {bright_amarelo('Devolução do empréstimo realizada com sucesso!\n')}
-                {bright_amarelo('Nome do usuário: ')}{devolver_emprestimo.usuario.nome}
-                {bright_amarelo('Título: ')}{devolver_emprestimo.livro.titulo}
-                {bright_amarelo('Editora: ')}{devolver_emprestimo.livro.editora}
-                {bright_amarelo('Autor(s): ')}{', '.join([a.nome for a in autores])}
-                {bright_amarelo('Gêneros: ')}{', '.join([g.nome for g in generos])}
-                {bright_amarelo('Data da devolução do empréstimo: ')}{data}
-                {bright_amarelo('Número do exemplar: ')}{identificador_exemplar}
-                {bright_amarelo(LINHA_PONTILHADA)}
-        """)
+        emprestimo: Emprestimo = BIBLIOTECA.devolver_emprestimo(identificacao_emprestimo)
+        exibir_ficha('Devolução do empréstimo realizada com sucesso! \n', emprestimo)      
     except ValueError as erro:
         print(bright_vermelho('\n\tNão foi possível realizar a operação de devolução do empréstimo.')) # pylint: disable=line-too-long
-        # print(bright_vermelho(f'\n\t{str(erro)}'))
-        print(str(erro))
+        print(bright_vermelho(f'\n\t{str(erro)}'))
+       
 
 
 ###########################################################
