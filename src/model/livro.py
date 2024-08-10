@@ -62,8 +62,8 @@ class Livro(Base):
         Renova o empréstimo do exemplar após as validações.
         '''
 
-    def devolver_exemplar(self, id_exemplar: int) -> None:
+    def devolver_exemplar(self, identificacao_exemplar: int) -> None:
         '''
         Devolve o exemplar emprestado para a lista de exemplares
         '''
-        self.exemplares.append(Exemplar(id_exemplar))
+        self.exemplares.append(Exemplar(identificacao_exemplar))

@@ -2,7 +2,7 @@
 modelo Biblioteca
 '''
 from src.model.base import Base
-from src.model.emprestimo import Emprestimo, EMPRESTADO
+from src.model.emprestimo import Emprestimo
 from src.model.usuario import Usuario
 from src.model.livro import Livro
 from src.model.exemplar import Exemplar
@@ -22,11 +22,33 @@ class Biblioteca(Base):
         Inicialização
         '''
         super().__init__(identificacao)
-        self.usuarios: list[Usuario] = usuarios
-        self.livros: list[Livro] = livros
-        self.emprestimos: list[Emprestimo] = []
+        self._usuarios: list[Usuario] = usuarios
+        self._livros: list[Livro] = livros
+        self._emprestimos: list[Emprestimo] = []
         if emprestimos:
-            self.emprestimos = emprestimos
+            self._emprestimos = emprestimos
+
+
+    @property
+    def usuarios(self) -> list[Usuario]:
+        '''
+        Lista de usuários        
+        '''
+        return self._usuarios
+
+    @property
+    def livros(self) -> list[Livro]:
+        '''
+        Lista de livros       
+        '''
+        return self._livros
+
+    @property
+    def emprestimos(self) -> list[Emprestimo]:
+        '''
+        Lista de empréstimos       
+        '''
+        return self._emprestimos
 
     def gerar_nova_identificacao_emprestimo(self) -> int:
         '''
@@ -96,21 +118,6 @@ class Biblioteca(Base):
                 return emprestimo
         raise ValueError(f"\tO emprestimo de identificação |{identificacao_emprestimo}| não foi encontrado!") # pylint: disable=line-too-long
 
-    def devolver_emprestimo(
-            self,
-            identificacao_emprestimo: int
-    ) -> Emprestimo:
-        '''
-        Devolve a biblioteca o livro (identificação do exemplar) de título 
-        emprestado para o usuário de nome.
-        Retorna o Emprestimo.
-        '''
-        emprestimo: Emprestimo = self.get_emprestimo_realizado(identificacao_emprestimo)
-        if emprestimo.estado != EMPRESTADO:
-            raise ValueError(f'\tO empréstimo {identificacao_emprestimo} não se encontra emprestado.') # pylint: disable=line-too-long
-        emprestimo.devolver()
-        return emprestimo
-
     def renovar_emprestimo(
             self,
             identificacao_emprestimo: int
@@ -120,8 +127,18 @@ class Biblioteca(Base):
         Retorna o emprestimo renovado.
         '''
         emprestimo = self.get_emprestimo_realizado(identificacao_emprestimo)
-        if emprestimo.estado != EMPRESTADO:
-            raise ValueError(f'\tRenovação não permitida! O empréstimo {identificacao_emprestimo} não pode ser renovado, pois não está emprestado.') # pylint: disable=line-too-long
         emprestimo.renovar()
         return emprestimo
 
+    def devolver_emprestimo(
+            self,
+            identificacao_emprestimo: int
+    ) -> Emprestimo:
+        '''
+        Devolve a biblioteca o livro (identificação do empréstimo) de título 
+        emprestado para o usuário de nome.
+        Retorna o Emprestimo.
+        '''
+        emprestimo: Emprestimo = self.get_emprestimo_realizado(identificacao_emprestimo)
+        emprestimo.devolver()
+        return emprestimo
