@@ -13,7 +13,7 @@ class LivroRenovavel(Livro):
         '''
         Renova o empréstimo do exemplar após as validações.
         '''
-        if self.renovacoes_permitidas == 0:
+        if not self.pode_ser_renovado():
             raise ValueError(f'\tNão é possível renovar o empréstimo do livro {self.titulo}. Este livro não possui renovação.') # pylint: disable=line-too-long
 
         if not exemplar.pode_renovar(self.renovacoes_permitidas):
