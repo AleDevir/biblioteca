@@ -44,7 +44,6 @@ class Emprestimo(Base):
             raise ValueError(f'\tOperação não permitida! O {self.livro.titulo} já foi devolvido ao acervo da biblioteca.') # pylint: disable=line-too-long
         self.data_devolucao = datetime.now()
         self.estado = DEVOLVIDO
-        print(f'...................{self.exemplar.identificacao}')
         self.livro.devolver_exemplar(self.exemplar.identificacao)
 
     def renovar(self) -> None:
