@@ -12,7 +12,6 @@ import locale
 
 from src.model.usuario import Usuario
 from src.model.emprestimo import Emprestimo
-from src.model.livro import Livro
 from src.model.livro_nao_renovavel import LivroNaoRenovavel
 from src.model.livro_renovavel import LivroRenovavel
 from src.model.autor import Autor
@@ -121,7 +120,7 @@ def input_int(msg: str) -> int:
         try:
             return int(get_input(msg))
         except ValueError:
-            print(bright_vermelho('\n\tApenas números inteiros são aceitos. Por favor, tente novamente.\n'))
+            print(bright_vermelho('\n\tApenas números inteiros são aceitos. Por favor, tente novamente.\n')) # pylint: disable=line-too-long
 
 def input_opcoes(msg: str, opcoes: dict[str]) -> str:
     '''
@@ -183,10 +182,10 @@ def exibir_ficha(msg: str, emprestimo: Emprestimo) -> None:
                 {bright_amarelo('Nome do usuário: ')}{emprestimo.usuario.nome}
                 {bright_amarelo('Título: ')}{emprestimo.livro.titulo}
                 {bright_amarelo('Editora: ')}{emprestimo.livro.editora}
-                {bright_amarelo('Autor(s): ')}{', '.join([a.nome for a in emprestimo.livro.autores])}
-                {bright_amarelo('Gêneros: ')}{', '.join([g.nome for g in emprestimo.livro.generos])}
+                {bright_amarelo('Autor(s): ')}{', '.join([a.nome for a in emprestimo.livro.autores])} # pylint: disable=line-too-long
+                {bright_amarelo('Gêneros: ')}{', '.join([g.nome for g in emprestimo.livro.generos])} # pylint: disable=line-too-long
                 {bright_amarelo('Data do empréstimo: ')}{emprestimo.data_emprestimo}
-                {bright_amarelo('Data da devolução do empréstimo: ')}{emprestimo.data_devolucao if emprestimo.data_devolucao else '-'}
+                {bright_amarelo('Data da devolução do empréstimo: ')}{emprestimo.data_devolucao if emprestimo.data_devolucao else '-'} # pylint: disable=line-too-long
                 {bright_amarelo('Exemplar: ')}{emprestimo.exemplar.identificacao}
                 {bright_amarelo(LINHA_PONTILHADA)}
     """)
@@ -247,7 +246,8 @@ def renovar() -> None:
     except ValueError as erro:
         print(bright_vermelho('\n\tNão foi possível realizar a operação de renovação do empréstimo.')) # pylint: disable=line-too-long
         print(bright_vermelho(f'\n\t{str(erro)}'))
-        
+
+
 ###########################################################
                   # DEVOLVER #
 ###########################################################
@@ -259,11 +259,10 @@ def devolver() -> None:
         identificacao_emprestimo = input_int('\n\tEntre com a identificação do empréstimo: ')
 
         emprestimo: Emprestimo = BIBLIOTECA.devolver_emprestimo(identificacao_emprestimo)
-        exibir_ficha('Devolução do empréstimo realizada com sucesso! \n', emprestimo)      
+        exibir_ficha('Devolução do empréstimo realizada com sucesso! \n', emprestimo)
     except ValueError as erro:
         print(bright_vermelho('\n\tNão foi possível realizar a operação de devolução do empréstimo.')) # pylint: disable=line-too-long
         print(bright_vermelho(f'\n\t{str(erro)}'))
-       
 
 
 ###########################################################
