@@ -42,7 +42,7 @@ BIBLIOTECA: Final[Biblioteca] = Biblioteca(
     ],
     livros = [
         LivroRenovavel(
-            titulo='L1',
+            titulo='Livro1',
             editora='BookBook',
             generos=[Genero('Terror')],
             exemplares=[Exemplar(2)],
