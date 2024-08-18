@@ -37,18 +37,19 @@ class Livro(Base):
         '''
         Informa se há exemplares disponíveis para o empréstimo.            
         '''
-        if len(self.exemplares) > 0:
-            return True
-        return False
+        return any(e.disponivel for e in self.exemplares)
+
 
     def retirar_exemplar(self) -> Exemplar:
         '''
         Retira um exemplar da lista de exemplares.
         Retorna o exemplar retirado.
         '''
-        if not self.exemplares:
-            raise ValueError ('\tNão existe exemplares disponíveis para o emrestimo.')
-        return self.exemplares.pop()
+        for exemplar in self.exemplares:
+            if exemplar.disponivel:
+                exemplar.emprestar()
+                return exemplar
+        raise ValueError ('\tNão existe exemplares disponíveis para o empréstimo.')
 
     def pode_ser_renovado(self) -> bool:
         '''
@@ -56,14 +57,24 @@ class Livro(Base):
         '''
         return self.renovacoes_permitidas > 0
 
-    @abstractmethod
+
     def renovar_emprestimo_exemplar(self, exemplar: Exemplar) -> None:
         '''
         Renova o empréstimo do exemplar após as validações.
         '''
+        if self.renovacoes_permitidas == 0:
+            raise ValueError(f'\tO livro {self.titulo} não permite renovação.')
+
+        if not exemplar.pode_renovar(self.renovacoes_permitidas):
+            raise ValueError(f'\tNão é possível renovar o empréstimo do livro {self.titulo}. Você já atingiu o limite máximo de renovações permitidas.') # pylint: disable=line-too-long
+
+        exemplar.acrescentar_numero_renovacoes()
+
 
     def devolver_exemplar(self, identificacao_exemplar: int) -> None:
         '''
         Devolve o exemplar emprestado para a lista de exemplares
         '''
-        self.exemplares.append(Exemplar(identificacao_exemplar))
+        for exemplar in self.exemplares:
+            if exemplar.identificacao == identificacao_exemplar:
+                exemplar.devolver()

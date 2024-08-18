@@ -8,17 +8,15 @@ from datetime import datetime
 import os
 import platform
 import locale
+from sqlite3 import Connection
 
+from src.db.conexao_db import get_conexao_db
 
-from src.model.usuario import Usuario
 from src.model.emprestimo import Emprestimo
-from src.model.livro_nao_renovavel import LivroNaoRenovavel
-from src.model.livro_renovavel import LivroRenovavel
-from src.model.autor import Autor
-from src.model.exemplar import Exemplar
-from src.model.genero import Genero
-from src.model.biblioteca import Biblioteca
 
+from src.process.emprestimo import realizar_emprestimo
+from src.process.devolucao import devolver_emprestimo
+from src.process.renovacao import renovar_emprestimo
 
 COR_BRANCA: Final[str] = '\033[0;0m'
 COR_BRIGHT_AMARELA: Final[str] = '\033[93m'
@@ -34,38 +32,6 @@ OPCOES:  Final[dict[str, str ]] = {
     'S': 'Sair'    
 }
 
-BIBLIOTECA: Final[Biblioteca] = Biblioteca(
-    usuarios = [
-        Usuario('Ale', '111111111', 'brasileira'),
-        Usuario('Elanor', '222222222', 'neozelandes'),
-        Usuario('Amana', '333333333', 'brasileira')
-    ],
-    livros = [
-        LivroRenovavel(
-            titulo='L1',
-            editora='BookBook',
-            generos=[Genero('Terror')],
-            exemplares=[Exemplar(2)],
-            autores=[Autor('Anônimo')],
-            renovacoes_permitidas=2,
-        ),
-        LivroNaoRenovavel(
-            titulo='Crime e Castigo',
-            editora='Martin Claret',
-            generos=[Genero('Romance'), Genero('Suspense'), Genero('Ficção filosófica')],
-            exemplares=[Exemplar(1)],
-            autores=[Autor('Fiódor Dostoiévski')]
-        ),
-        LivroRenovavel(
-            titulo='Zadig ou o Destino',
-            editora='L&PM POCKET',
-            generos=[Genero('Romance'), Genero('Suspense'), Genero('Ficção filosófica')],
-            exemplares=[Exemplar(1)],
-            autores=[Autor('Voltaire')],
-            renovacoes_permitidas=3,
-        )
-    ]
-)
 
 ###########################################################
                   # INFRAESTRUTURA #
@@ -182,10 +148,11 @@ def exibir_ficha(msg: str, emprestimo: Emprestimo) -> None:
                 {bright_amarelo('Nome do usuário: ')}{emprestimo.usuario.nome}
                 {bright_amarelo('Título: ')}{emprestimo.livro.titulo}
                 {bright_amarelo('Editora: ')}{emprestimo.livro.editora}
-                {bright_amarelo('Autor(s): ')}{', '.join([a.nome for a in emprestimo.livro.autores])} # pylint: disable=line-too-long
-                {bright_amarelo('Gêneros: ')}{', '.join([g.nome for g in emprestimo.livro.generos])} # pylint: disable=line-too-long
-                {bright_amarelo('Data do empréstimo: ')}{emprestimo.data_emprestimo}
-                {bright_amarelo('Data da devolução do empréstimo: ')}{emprestimo.data_devolucao if emprestimo.data_devolucao else '-'} # pylint: disable=line-too-long
+                {bright_amarelo('Autor(s): ')}{', '.join([a.nome for a in emprestimo.livro.autores])}
+                {bright_amarelo('Gêneros: ')}{', '.join([g.nome for g in emprestimo.livro.generos])}
+                {bright_amarelo('Data do empréstimo: ')}{datetime_para_str(emprestimo.data_emprestimo)}
+                {bright_amarelo('Data para devolução: ')}{datetime_para_str(emprestimo.data_para_devolucao)}
+                {bright_amarelo('Data da devolução do empréstimo: ')}{datetime_para_str(emprestimo.data_devolucao) if emprestimo.data_devolucao else '-'}
                 {bright_amarelo('Exemplar: ')}{emprestimo.exemplar.identificacao}
                 {bright_amarelo(LINHA_PONTILHADA)}
     """)
@@ -217,14 +184,14 @@ def get_livro_titulo() -> str:
 ###########################################################
                   # EMPRESTAR #
 ###########################################################
-def emprestar() -> None:
+def emprestar(conexao: Connection) -> None:
     '''
     Fluxo do empréstimo
     '''
     try:
         usuario_nome = get_nome_usuario()
         livro_titulo = get_livro_titulo()
-        emprestimo: Emprestimo = BIBLIOTECA.realizar_emprestimo(usuario_nome, livro_titulo)
+        emprestimo: Emprestimo = realizar_emprestimo(conexao, usuario_nome, livro_titulo)
         exibir_ficha('Empréstimo realizado com sucesso! \n', emprestimo)
     except ValueError as erro:
         print(bright_vermelho('\n\tNão foi possível realizar a operação de empréstimo.')) # pylint: disable=line-too-long
@@ -234,14 +201,14 @@ def emprestar() -> None:
 ###########################################################
                   # RENOVAR #
 ###########################################################
-def renovar() -> None:
+def renovar(conexao: Connection) -> None:
     '''
     Fluxo do renovar empréstimo
     '''
     try:
         identificacao_emprestimo = input_int('\n\tEntre com a identificação do empréstimo: ')
 
-        emprestimo: Emprestimo = BIBLIOTECA.renovar_emprestimo(identificacao_emprestimo)
+        emprestimo: Emprestimo = renovar_emprestimo(conexao, identificacao_emprestimo)
         exibir_ficha('Renovação do empréstimo realizada com sucesso! \n', emprestimo)
     except ValueError as erro:
         print(bright_vermelho('\n\tNão foi possível realizar a operação de renovação do empréstimo.')) # pylint: disable=line-too-long
@@ -251,14 +218,14 @@ def renovar() -> None:
 ###########################################################
                   # DEVOLVER #
 ###########################################################
-def devolver() -> None:
+def devolver(conexao: Connection) -> None:
     '''
     Fluxo de devolver empréstimo.
     '''
     try:
         identificacao_emprestimo = input_int('\n\tEntre com a identificação do empréstimo: ')
 
-        emprestimo: Emprestimo = BIBLIOTECA.devolver_emprestimo(identificacao_emprestimo)
+        emprestimo: Emprestimo = devolver_emprestimo(conexao, identificacao_emprestimo)
         exibir_ficha('Devolução do empréstimo realizada com sucesso! \n', emprestimo)
     except ValueError as erro:
         print(bright_vermelho('\n\tNão foi possível realizar a operação de devolução do empréstimo.')) # pylint: disable=line-too-long
@@ -272,17 +239,24 @@ def gerenciamento_biblioteca() -> None:
     '''
     Fluxo Principal do Programa.
     '''
-    limpar_console()
-    print(verde('\t*** Gerenciamento da Biblioteca ***\n '))
-    while True:
-
-        opcao = escolher_uma_opcao_do_menu_entrada(OPCOES)
-        if opcao == 'E':
-            emprestar()
-        if opcao == 'D':
-            devolver()
-        if opcao == 'R':
-            renovar()
-        if opcao == "S":
-            print('Sair')
-            break
+    try:
+        conexao: Connection = get_conexao_db()
+        limpar_console()
+        print(verde('\t*** Gerenciamento da Biblioteca ***\n '))
+        while True:
+            opcao = escolher_uma_opcao_do_menu_entrada(OPCOES)
+            if opcao == 'E':
+                emprestar(conexao)
+            if opcao == 'D':
+                devolver(conexao)
+            if opcao == 'R':
+                renovar(conexao)
+            if opcao == "S":
+                print('Sair')
+                break
+    except Exception as erro:
+        print('ERRO!!!')
+        print(bright_vermelho(erro))
+        raise erro
+    finally:
+        conexao.close()

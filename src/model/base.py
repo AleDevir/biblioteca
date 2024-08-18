@@ -22,3 +22,10 @@ class Base(ABC):
         O identificador com valor zero siginifica um novo objeto.
         '''
         return self._identificacao
+
+    @identificacao.setter
+    def identificacao(self, novo_id: int) -> None:
+        '''
+        Setar identificador
+        '''
+        self._identificacao = novo_id
