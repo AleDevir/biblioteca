@@ -1,5 +1,5 @@
 '''
-Módulo com fluxo principal do programa Biblioteca.
+Módulo com fluxo principal de carga DB.
   
 '''
 
