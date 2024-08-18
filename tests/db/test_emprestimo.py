@@ -2,6 +2,7 @@
 Teste do emprestimo DB
 pytest tests/db/test_emprestimo.py -vv
 '''
+# from datetime import datetime, timedelta
 from datetime import datetime, timedelta
 import pytest
 from sqlite3 import Cursor
@@ -10,9 +11,11 @@ from src.db.emprestimo_db import (
     get_emprestimos,
     get_emprestimo_by_id,
     insert_emprestimo,
-    update_emprestimo,
+    update_emprestimo_renovacao,
+    update_emprestimo_devolucao,
     delete_emprestimo,
 )
+from src.util.data_hora_util import get_now
 
 
 @pytest.fixture(scope='function')
@@ -107,8 +110,8 @@ def test_add_emprestimo(db_conection: Cursor):
             livro_id=livro_id,
             exemplar_id=exemplar_id,
             estado='EMPRESTADO',
-            data_emprestimo=datetime.now(),
-            data_para_devolucao=datetime.now() + timedelta(days=3),
+            data_emprestimo=get_now(),
+            data_para_devolucao=get_now() + timedelta(days=3),
             data_devolucao=None,
             numero_de_renovacoes= 0
         )
@@ -127,6 +130,65 @@ def test_add_emprestimo(db_conection: Cursor):
         assert False
     finally:
         db_conection.close()
+
+
+def test_renovar_emprestimo(db_conection: Cursor):
+    '''
+    Teste renovar emprestimo
+    pytest tests/db/test_emprestimo.py::test_renovar_emprestimo -vv
+    '''
+    try:
+        emprestimo = get_emprestimos(db_conection)[-1]
+        assert emprestimo
+        data: datetime = get_now()+timedelta(days=3)
+        numero_de_renovacoes: int = 1
+        identificacao: int = emprestimo['id']
+        update_emprestimo_renovacao(
+            db_conection=db_conection,
+            identificacao=identificacao,
+            numero_de_renovacoes=numero_de_renovacoes,
+            data_para_devolucao=data
+        )
+        emprestimo = get_emprestimo_by_id(db_conection, identificacao)
+        assert emprestimo
+        assert emprestimo['id'] == identificacao
+        assert emprestimo['numero_de_renovacoes'] == numero_de_renovacoes
+        assert emprestimo['data_para_devolucao'] == data
+    except Exception as erro:
+        print(erro)
+        assert False
+    finally:
+        db_conection.close()
+
+
+def test_devolver_emprestimo(db_conection: Cursor):
+    '''
+    Teste renovar emprestimo
+    pytest tests/db/test_emprestimo.py::test_devolver_emprestimo -vv
+    '''
+    try:
+        emprestimo = get_emprestimos(db_conection)[-1]
+        assert emprestimo
+        data: datetime = get_now()
+        estado: str = 'DEVOLVIDO'
+        identificacao: int = emprestimo['id']
+        update_emprestimo_devolucao(
+            db_conection=db_conection,
+            identificacao=identificacao,
+            estado=estado,
+            data_devolucao=data
+        )
+        emprestimo = get_emprestimo_by_id(db_conection, identificacao)
+        assert emprestimo
+        assert emprestimo['id'] == identificacao
+        assert emprestimo['estado'] == estado
+        assert emprestimo['data_devolucao'] == data
+    except Exception as erro:
+        print(erro)
+        assert False
+    finally:
+        db_conection.close()
+
 
 
 def test_excluir_emprestimo(db_conection: Cursor):

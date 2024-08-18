@@ -1,13 +1,14 @@
 '''
 Realizar Emprestimo
+Fluxo para a realização de um empréstimo.
 '''
 from sqlite3 import Connection
 
 from src.db.emprestimo_db import insert_emprestimo
 from src.db.exemplar_db import update_exemplar
 
-from src.repositorio.livro_repositorio import get_livro_por_titulo
-from src.repositorio.usuario_repositorio import get_usuario_por_nome
+from src.montagem.livro_montagem import montar_livro_por_titulo
+from src.montagem.usuario_montagem import montar_usuario_por_nome
 
 from src.model.emprestimo import Emprestimo
 from src.model.usuario import Usuario
@@ -19,8 +20,8 @@ def realizar_emprestimo(conexao: Connection, nome_usuario: str, titulo_livro: st
     Empresta ao usuario de nome o livro de título.
     Retorna o empréstimo.
     '''
-    usuario: Usuario = get_usuario_por_nome(conexao, nome_usuario)
-    livro: Livro = get_livro_por_titulo(conexao, titulo_livro)
+    usuario: Usuario = montar_usuario_por_nome(conexao, nome_usuario)
+    livro: Livro = montar_livro_por_titulo(conexao, titulo_livro)
 
     if not livro.possui_exemplar_disponivel:
         raise ValueError(f'\tO livro {livro.titulo} não possui exemplares disponíveis para empréstimo.') # pylint: disable=line-too-long

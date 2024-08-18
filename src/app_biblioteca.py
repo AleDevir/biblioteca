@@ -11,6 +11,7 @@ import locale
 from sqlite3 import Connection
 
 from src.db.conexao_db import get_conexao_db
+from src.db.carga_db import carregar_banco_de_dados
 
 from src.model.emprestimo import Emprestimo
 
@@ -26,12 +27,17 @@ LINHA_TRACEJADA: Final[str] = '-' * 31
 LINHA_PONTILHADA: Final[str] = '-' * 61
 
 OPCOES:  Final[dict[str, str ]] = {
+    'C': 'Carregar banco de dados',
     'E': 'Emprestar',
     'D': 'Devolver',
     'R': 'Renovar',
     'S': 'Sair'    
 }
 
+OPCOES_SIM_NAO:  Final[dict[str, str ]] = {
+    'S': 'Sim',    
+    'N': 'Não',    
+}
 
 ###########################################################
                   # INFRAESTRUTURA #
@@ -233,6 +239,27 @@ def devolver(conexao: Connection) -> None:
 
 
 ###########################################################
+                  # CARREGAR BANCO DE DAODS #
+###########################################################
+def carregar_db(conexao: Connection) -> None:
+    '''
+    Fluxo da carga do banco de dados.
+    '''
+    try:
+        while True:
+            opcao = escolher_uma_opcao_do_menu_entrada(OPCOES_SIM_NAO)
+            if opcao == 'S':
+                carregar_banco_de_dados(conexao)
+                print(bright_amarelo('\n\tCarga da base de dados realizada com sucesso!'))
+                break
+            if opcao == 'N':
+                break
+    except Exception as erro:
+        print(bright_vermelho('\n\tNão foi possível realizar a carga da base de dados.'))
+        print(bright_vermelho(f'\n\t{str(erro)}'))
+
+
+###########################################################
                   # GERENCIAMENTO #
 ###########################################################
 def gerenciamento_biblioteca() -> None:
@@ -245,6 +272,8 @@ def gerenciamento_biblioteca() -> None:
         print(verde('\t*** Gerenciamento da Biblioteca ***\n '))
         while True:
             opcao = escolher_uma_opcao_do_menu_entrada(OPCOES)
+            if opcao == 'C':
+                carregar_db(conexao)
             if opcao == 'E':
                 emprestar(conexao)
             if opcao == 'D':
@@ -252,7 +281,7 @@ def gerenciamento_biblioteca() -> None:
             if opcao == 'R':
                 renovar(conexao)
             if opcao == "S":
-                print('Sair')
+                print(bright_amarelo('\n\tVolte sempre!'))
                 break
     except Exception as erro:
         print('ERRO!!!')

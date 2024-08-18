@@ -13,7 +13,7 @@ from src.db.livro_db import (
     update_livro,
     delete_livro,
 )
-from src.db.autor_livro_db import get_by_livro
+from src.db.autor_livro_db import get_autores_by_livro_id
 from src.db.exemplar_db import get_exemplares_by_livro
 
 
@@ -123,7 +123,7 @@ def test_excluir_livro_4(db_conection: Cursor):
         delete_livro(db_conection, identificacao)
         livro = get_livro_by_id(db_conection, identificacao)
         assert not livro
-        autores = get_by_livro(db_conection, identificacao)
+        autores = get_autores_by_livro_id(db_conection, identificacao)
         assert not autores
         exemplares = get_exemplares_by_livro(db_conection, identificacao)
         assert not exemplares

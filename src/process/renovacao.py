@@ -1,11 +1,12 @@
 '''
 Realizar Renovação do emprestimo
+Fluxo para a renovação de um empréstimo.
 '''
 from sqlite3 import Connection
 
 from src.db.emprestimo_db import update_emprestimo_renovacao
 
-from src.repositorio.emprestimo_repositorio import get_emprestimo_por_id
+from src.montagem.emprestimo_montagem import montar_emprestimo_por_id
 
 from src.model.emprestimo import Emprestimo
 
@@ -15,7 +16,7 @@ def renovar_emprestimo(conexao: Connection, identificacao_emprestimo: int) -> Em
     emprestado para o usuário de nome.
     Retorna o Emprestimo.
     '''
-    emprestimo: Emprestimo = get_emprestimo_por_id(conexao, identificacao_emprestimo)
+    emprestimo: Emprestimo = montar_emprestimo_por_id(conexao, identificacao_emprestimo)
     emprestimo.renovar()
     update_emprestimo_renovacao(
         db_conection=conexao,
