@@ -1,8 +1,7 @@
 '''
 Carga DB - criação de tabelas e inserção de dados.
 '''
-
-from datetime import datetime
+from datetime import timedelta
 from sqlite3 import Connection
 
 from src.util.data_hora_util import get_now
@@ -101,14 +100,14 @@ def carregar_banco_de_dados(db_conection: Connection) -> None:
 
     # Exemplares do livro
     # Livro 1
-    insert_exemplar(db_conection, 1)
+    insert_exemplar(db_conection, 1, 0)
     # Livro 2
     insert_exemplar(db_conection, 2)
-    insert_exemplar(db_conection, 2)
+    insert_exemplar(db_conection, 2, 0)
     # Livro 3
+    insert_exemplar(db_conection, 3, 0)
     insert_exemplar(db_conection, 3)
-    insert_exemplar(db_conection, 3)
-    insert_exemplar(db_conection, 3)
+    insert_exemplar(db_conection, 3, 0)
     # Livro 4
     insert_exemplar(db_conection, 4)
     insert_exemplar(db_conection, 4)
@@ -131,10 +130,25 @@ def carregar_banco_de_dados(db_conection: Connection) -> None:
     insert_autores_livros(db_conection, 3, 4)
 
     # Emprestimos
-    # agora = datetime.now()
-    # data_hora = datetime(agora.year, agora.month, agora.day)
-    data_hora = get_now()
+    hoje = get_now()
+    ontem =  hoje + timedelta(days=-1) # ontem
+    dois_dias_atras =  hoje + timedelta(days=-2) # Anteontem
+    tres_dias_atras =  hoje + timedelta(days=-3) # 3 dias atrás
+    quatro_dias_atras =  hoje + timedelta(days=-4) # 4 dias atrás
 
-    insert_emprestimo(db_conection, 1, 1, 1, 'DEVOLVIDO', data_hora, data_hora, data_hora, 0)
-    insert_emprestimo(db_conection, 1, 2, 2, 'DEVOLVIDO', data_hora, data_hora, data_hora, 1)
-    insert_emprestimo(db_conection, 1, 3, 3, 'DEVOLVIDO', data_hora, data_hora, data_hora, 2)
+    amanha = hoje + timedelta(days=1) # amanhã
+    depois_de_amanha = hoje + timedelta(days=2) # depois de amanhã
+    daqui_a_tres_dias = hoje + timedelta(days=3) # daqui a três dias
+
+    # Devolvidos
+    insert_emprestimo(db_conection, 1, 1, 1, 'DEVOLVIDO', quatro_dias_atras, ontem, dois_dias_atras, 0)
+    insert_emprestimo(db_conection, 1, 2, 2, 'DEVOLVIDO', tres_dias_atras, hoje, ontem, 1)
+    insert_emprestimo(db_conection, 1, 3, 3, 'DEVOLVIDO', dois_dias_atras, amanha, hoje, 2)
+
+    # Emprestado
+    insert_emprestimo(db_conection, 1, 1, 1, 'EMPRESTADO', dois_dias_atras, amanha, None, 0)
+    insert_emprestimo(db_conection, 1, 2, 2, 'EMPRESTADO', ontem, depois_de_amanha, None, 0)
+    insert_emprestimo(db_conection, 1, 3, 3, 'EMPRESTADO', hoje, daqui_a_tres_dias, None, 0)
+
+    # Atrasado
+    insert_emprestimo(db_conection, 1, 3, 1, 'EMPRESTADO', quatro_dias_atras, ontem, None, 0)

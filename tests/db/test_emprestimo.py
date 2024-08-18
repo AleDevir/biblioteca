@@ -26,7 +26,7 @@ def db_conection() -> Cursor:
     return get_conexao_db('./tests/db/banco_de_dados_de_teste.db')
 
 
-def test_get_emprestimos(db_conection: Cursor):
+def test_get_emprestimos(db_conection: Cursor): # pylint: disable=redefined-outer-name
     '''
     Teste carga
     pytest tests/db/test_emprestimo.py::test_get_emprestimos -vv
@@ -35,13 +35,17 @@ def test_get_emprestimos(db_conection: Cursor):
         emprestimos = get_emprestimos(db_conection)
         assert emprestimos
         assert isinstance(emprestimos, list)
-        assert len(emprestimos) == 3
+        assert len(emprestimos) == 7
         for indice, emprestimo in enumerate(emprestimos):
             assert emprestimo
             assert isinstance(emprestimo, dict)
             assert 'id' in emprestimo
+            assert 'estado' in emprestimo
             assert emprestimo['id'] == indice + 1
-            assert emprestimo['estado'] == 'DEVOLVIDO'
+            if indice >= 3:
+                assert emprestimo['estado'] == 'EMPRESTADO'
+            else:
+                assert emprestimo['estado'] == 'DEVOLVIDO'
     except Exception as erro:
         print(erro)
         assert False

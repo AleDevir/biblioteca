@@ -39,7 +39,7 @@ def test_get_exemplar_by_id_inexistente(db_conection: Cursor):
         db_conection.close()
 
 
-@pytest.mark.parametrize('identificacao', [1,2,3,4,5,6,7,8,9,10])
+@pytest.mark.parametrize('identificacao', [2,5,7,8,9,10])
 def test_get_exemplar_by_id(db_conection: Cursor, identificacao: int):
     '''
     Teste carga
@@ -87,8 +87,12 @@ def test_get_exemplares_by_livro(
             assert 'id' in exemplar
             assert 'disponivel' in exemplar
             assert 'livro_id' in exemplar
-            assert exemplar['disponivel'] == 1
             assert exemplar['livro_id'] == livro_id
+            if exemplar['id'] in [1, 3, 4, 6]:
+                assert exemplar['disponivel'] == 0
+            else:
+                assert exemplar['disponivel'] == 1
+            
     except Exception as erro:
         print(erro)
         assert False
