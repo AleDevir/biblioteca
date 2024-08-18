@@ -1,5 +1,5 @@
 '''
-Repositório usuario
+DB usuario
 '''
 from typing import Any
 from sqlite3 import Connection

@@ -1,5 +1,5 @@
 '''
-Repositório autor
+DB autor
 '''
 from typing import Any
 from sqlite3 import Connection

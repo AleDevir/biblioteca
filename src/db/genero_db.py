@@ -1,5 +1,5 @@
 '''
-Repositório genero
+DB genero
 '''
 from typing import Any
 from sqlite3 import Connection

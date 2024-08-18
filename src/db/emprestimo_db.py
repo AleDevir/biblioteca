@@ -1,10 +1,12 @@
 '''
-Módulo emprestimo DB
+DB emprestimo
 '''
 from datetime import datetime
 
 from typing import Any
-from sqlite3 import Connection
+from sqlite3 import Connection, Cursor
+
+from src.util.data_hora_util import converter_timestamp_to_datetime
 
 def drop_table_emprestimos(db_conection: Connection) -> None:
     '''
@@ -44,7 +46,7 @@ def insert_emprestimo(
         data_para_devolucao: datetime,
         data_devolucao: datetime | None,
         numero_de_renovacoes: int = 0,
-) -> None:
+) -> int:
     '''
     Inseri emprestimo na tabela.
     '''
@@ -58,8 +60,12 @@ def insert_emprestimo(
         data_para_devolucao,
         data_devolucao
     )
-    db_conection.cursor().execute('INSERT INTO emprestimos(usuario_id, livro_id, exemplar_id, numero_de_renovacoes, estado, data_emprestimo, data_para_devolucao, data_devolucao) VALUES(?, ?, ?, ?, ?, ?, ?, ?)', dados) # pylint: disable=line-too-long
+
+    cursor: Cursor = db_conection.cursor()
+    cursor.execute('INSERT INTO emprestimos(usuario_id, livro_id, exemplar_id, numero_de_renovacoes, estado, data_emprestimo, data_para_devolucao, data_devolucao) VALUES(?, ?, ?, ?, ?, ?, ?, ?)', dados) # pylint: disable=line-too-long
+    emprestimo_id = cursor.lastrowid
     db_conection.commit()
+    return emprestimo_id
 
 
 def tuple_to_dict(data: tuple) -> dict[str, Any]:
@@ -87,9 +93,9 @@ def tuple_to_dict(data: tuple) -> dict[str, Any]:
         'exemplar_id': exemplar_id,
         'numero_de_renovacoes': numero_de_renovacoes,
         'estado': estado,
-        'data_emprestimo': data_emprestimo,
-        'data_para_devolucao': data_para_devolucao,
-        'data_devolucao': data_devolucao,
+        'data_emprestimo': converter_timestamp_to_datetime(data_emprestimo),
+        'data_para_devolucao': converter_timestamp_to_datetime(data_para_devolucao),
+        'data_devolucao': converter_timestamp_to_datetime(data_devolucao) if data_devolucao else None,
     }
 
 
@@ -121,18 +127,37 @@ def get_emprestimos(db_conection: Connection) -> list[dict[str, Any]]:
     # UPDATE - EMPRESTIMO #
 #################################################
 
-def update_emprestimo(
+def update_emprestimo_devolucao(
         db_conection: Connection,
         identificacao: int,
         estado: str,
-        numero_de_renovacoes: int,
-        data_para_devolucao: datetime | None,
         data_devolucao: datetime | None,        
     ) -> None:
     '''
     Atualiza dados do emprestimo na tabela.
     '''
-    db_conection.cursor().execute("UPDATE emprestimos SET estado = ?, numero_de_renovacoes = ?, data_para_devolucao = ? data_de_devolucao = ? WHERE id = ?", (estado, numero_de_renovacoes, data_para_devolucao, data_devolucao, identificacao)) # pylint: disable=line-too-long
+    dados = (estado, data_devolucao, identificacao)
+    print('.........................')
+    print(dados)
+    print('.........................')
+    db_conection.cursor().execute("UPDATE emprestimos SET estado = ?, data_devolucao = ? WHERE id = ?", dados) # pylint: disable=line-too-long
+    db_conection.commit()
+
+
+def update_emprestimo_renovacao(
+        db_conection: Connection,
+        identificacao: int,
+        numero_de_renovacoes: int,
+        data_para_devolucao: datetime | None,        
+    ) -> None:
+    '''
+    Atualiza dados do emprestimo na tabela.
+    '''
+    dados = (numero_de_renovacoes, data_para_devolucao, identificacao)
+    print('.........................')
+    print(dados)
+    print('.........................')
+    db_conection.cursor().execute("UPDATE emprestimos SET numero_de_renovacoes = ?, data_para_devolucao = ? WHERE id = ?", dados) # pylint: disable=line-too-long
     db_conection.commit()
 
 #################################################
