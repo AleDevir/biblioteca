@@ -84,8 +84,16 @@ def tuple_to_dict(data: tuple) -> dict[str, Any]:
         estado,
         data_emprestimo,
         data_para_devolucao,
-        data_devolucao
+        data_devolucao,
+        usuario_nome,
+        usuario_telefone,
+        usuario_nacionalidade,
+        livro_titulo,
+        livro_renovacoes_permitidas,
+        editora_nome
      ) =  data
+
+
     return {
         'id': identificacao,
         'usuario_id': usuario_id,
@@ -96,6 +104,12 @@ def tuple_to_dict(data: tuple) -> dict[str, Any]:
         'data_emprestimo': converter_timestamp_to_datetime(data_emprestimo),
         'data_para_devolucao': converter_timestamp_to_datetime(data_para_devolucao),
         'data_devolucao': converter_timestamp_to_datetime(data_devolucao) if data_devolucao else None,
+        'usuario_nome': usuario_nome,
+        'usuario_telefone': usuario_telefone,
+        'usuario_nacionalidade': usuario_nacionalidade,
+        'livro_titulo': livro_titulo,
+        'livro_renovacoes_permitidas': livro_renovacoes_permitidas,
+        'editora_nome': editora_nome,
     }
 
 
@@ -104,7 +118,17 @@ def get_emprestimo_by_id(db_conection: Connection, emprestimo_id: int) -> dict[s
     Obter um emprestimo pelo id.
     '''
     cursor = db_conection.cursor()
-    cursor.execute(f"SELECT id, usuario_id, livro_id, exemplar_id, numero_de_renovacoes, estado, data_emprestimo, data_para_devolucao, data_devolucao FROM emprestimos WHERE id = {emprestimo_id} ")
+    cursor.execute(f"""SELECT e.id, e.usuario_id, e.livro_id, e.exemplar_id,
+                        e.numero_de_renovacoes, e.estado,
+                        e.data_emprestimo, e.data_para_devolucao, e.data_devolucao,
+                        u.nome AS usuario_nome, u.telefone AS usuario_telefone, u.nacionalidade AS usuario_nacionalidade,
+                        l.titulo AS livro_titulo, l.renovacoes_permitidas AS livro_renovacoes_permitidas,
+                        ed.nome AS editora_nome
+                   FROM emprestimos AS e
+                   INNER JOIN usuarios AS u ON (e.usuario_id = u.id)
+                   INNER JOIN livros AS l ON (e.livro_id = l.id)
+                   INNER JOIN editoras AS ed ON (l.editora_id = ed.id)
+                   WHERE e.id = {emprestimo_id} """)
     data = cursor.fetchone()
     return tuple_to_dict(data)
 
@@ -114,7 +138,17 @@ def get_emprestimos(db_conection: Connection) -> list[dict[str, Any]]:
     Obter TODOS os emprestimos
     '''
     cursor = db_conection.cursor()
-    cursor.execute('SELECT id, usuario_id, livro_id, exemplar_id, numero_de_renovacoes, estado, data_emprestimo, data_para_devolucao, data_devolucao FROM emprestimos')
+    # cursor.execute('SELECT id, usuario_id, livro_id, exemplar_id, numero_de_renovacoes, estado, data_emprestimo, data_para_devolucao, data_devolucao FROM emprestimos')
+    cursor.execute("""SELECT e.id, e.usuario_id, e.livro_id, e.exemplar_id,
+                        e.numero_de_renovacoes, e.estado,
+                        e.data_emprestimo, e.data_para_devolucao, e.data_devolucao,
+                        u.nome AS usuario_nome, u.telefone AS usuario_telefone, u.nacionalidade AS usuario_nacionalidade,
+                        l.titulo AS livro_titulo, l.renovacoes_permitidas AS livro_renovacoes_permitidas,
+                        ed.nome AS editora_nome
+                   FROM emprestimos AS e
+                   INNER JOIN usuarios AS u ON (e.usuario_id = u.id)
+                   INNER JOIN livros AS l ON (e.livro_id = l.id)
+                   INNER JOIN editoras AS ed ON (l.editora_id = ed.id) """)
     emprestimo_db = cursor.fetchall()
     result: list[dict[str, Any]] = []
     for data in emprestimo_db:
@@ -137,9 +171,6 @@ def update_emprestimo_devolucao(
     Atualiza dados do emprestimo na tabela.
     '''
     dados = (estado, data_devolucao, identificacao)
-    print('.........................')
-    print(dados)
-    print('.........................')
     db_conection.cursor().execute("UPDATE emprestimos SET estado = ?, data_devolucao = ? WHERE id = ?", dados) # pylint: disable=line-too-long
     db_conection.commit()
 
@@ -154,9 +185,6 @@ def update_emprestimo_renovacao(
     Atualiza dados do emprestimo na tabela.
     '''
     dados = (numero_de_renovacoes, data_para_devolucao, identificacao)
-    print('.........................')
-    print(dados)
-    print('.........................')
     db_conection.cursor().execute("UPDATE emprestimos SET numero_de_renovacoes = ?, data_para_devolucao = ? WHERE id = ?", dados) # pylint: disable=line-too-long
     db_conection.commit()
 

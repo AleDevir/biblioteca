@@ -72,7 +72,7 @@ def test_emprestar():
     assert identificacao_exemplar in [1,2,3]
 
     # O identificador não deve estar na lista de exemplares disponíveis para emprestar:
-    assert identificacao_exemplar not in [e.identificacao for e in livro.exemplares]
+    assert all(not e.disponivel for e in livro.exemplares if e.identificacao == identificacao_exemplar)
 
     # O empréstimo deve constar no registro de emprestimos da Biblioteca:
     assert  len(biblioteca.emprestimos) == 1

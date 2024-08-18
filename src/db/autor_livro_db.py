@@ -43,10 +43,11 @@ def tuple_to_dict(data: tuple) -> dict[str, int]:
     '''
     if not data:
         return {}
-    autor_id, livro_id =  data
+    autor_id, livro_id, autor_nome =  data
     return {
         'autor_id': autor_id,
         'livro_id': livro_id,
+        'autor_nome': autor_nome,
     }
 
 def get_by_pk(
@@ -58,17 +59,28 @@ def get_by_pk(
     Obter um
     '''
     cursor = db_conection.cursor()
-    cursor.execute(f"SELECT autor_id, livro_id FROM autores_livros WHERE autor_id = {autor_id} AND livro_id = {livro_id} ")
+    cursor.execute(f"""SELECT al.autor_id, al.livro_id, autores.nome as autor_nome
+                   FROM autores_livros AS al
+                   INNER JOIN autores ON (al.autor_id = autores.id)
+                   WHERE
+                    al.autor_id = {autor_id}
+                    AND
+                    al.livro_id = {livro_id} """)
     data = cursor.fetchone()
     return tuple_to_dict(data)
 
 
-def get_by_autor(db_conection: Connection, autor_id: int) -> list[dict[str, int]]:
+def get_autores_by_autor_id(db_conection: Connection, autor_id: int) -> list[dict[str, int]]:
     '''
     Obter TODOS os autores
     '''
     cursor = db_conection.cursor()
-    cursor.execute(f"SELECT autor_id, livro_id FROM autores_livros WHERE autor_id = {autor_id} ")
+    # cursor.execute(f"SELECT autor_id, livro_id FROM autores_livros WHERE autor_id = {autor_id} ")
+    cursor.execute(f"""SELECT al.autor_id, al.livro_id, autores.nome as autor_nome
+                   FROM autores_livros AS al
+                   INNER JOIN autores ON (al.autor_id = autores.id)
+                   WHERE
+                    al.autor_id = {autor_id} """)
     autores_db = cursor.fetchall()
     result: list[dict[str, int]] = []
     for data in autores_db:
@@ -77,12 +89,17 @@ def get_by_autor(db_conection: Connection, autor_id: int) -> list[dict[str, int]
     return result
 
 
-def get_by_livro(db_conection: Connection, livro_id: int) -> list[dict[str, int]]:
+def get_autores_by_livro_id(db_conection: Connection, livro_id: int) -> list[dict[str, int]]:
     '''
     Obter TODOS os livros
     '''
     cursor = db_conection.cursor()
-    cursor.execute(f"SELECT autor_id, livro_id FROM autores_livros WHERE livro_id = {livro_id} ")
+    # cursor.execute(f"SELECT autor_id, livro_id FROM autores_livros WHERE livro_id = {livro_id} ")
+    cursor.execute(f"""SELECT al.autor_id, al.livro_id, autores.nome as autor_nome
+                   FROM autores_livros AS al
+                   INNER JOIN autores ON (al.autor_id = autores.id)
+                   WHERE
+                    al.livro_id = {livro_id} """)
     autores_db = cursor.fetchall()
     result: list[dict[str, int]] = []
     for data in autores_db:

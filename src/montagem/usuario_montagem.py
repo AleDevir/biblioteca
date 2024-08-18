@@ -8,7 +8,7 @@ from src.db.usuario_db import get_usuario_by_id, get_usuario_by_nome
 from src.model.usuario import Usuario
 
 
-def get_usuario_por_id(conexao: Connection, usuario_id: int) -> Usuario:
+def montar_usuario_por_id(conexao: Connection, usuario_id: int) -> Usuario:
     '''
     Obtem o usuário por ID.
     Retorna o usuário.
@@ -25,7 +25,7 @@ def get_usuario_por_id(conexao: Connection, usuario_id: int) -> Usuario:
     )
 
 
-def get_usuario_por_nome(conexao: Connection, nome_usuario: str) -> Usuario:
+def montar_usuario_por_nome(conexao: Connection, nome_usuario: str) -> Usuario:
     '''
     Obtem o usuário por nome.
     Retorna o usuário.

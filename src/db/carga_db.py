@@ -5,6 +5,8 @@ Carga DB - criação de tabelas e inserção de dados.
 from datetime import datetime
 from sqlite3 import Connection
 
+from src.util.data_hora_util import get_now
+
 from src.db.autor_db import(
     criar_tabela_autores,
     insert_autor,
@@ -129,8 +131,9 @@ def carregar_banco_de_dados(db_conection: Connection) -> None:
     insert_autores_livros(db_conection, 3, 4)
 
     # Emprestimos
-    agora = datetime.now()
-    data_hora = datetime(agora.year, agora.month, agora.day)
+    # agora = datetime.now()
+    # data_hora = datetime(agora.year, agora.month, agora.day)
+    data_hora = get_now()
 
     insert_emprestimo(db_conection, 1, 1, 1, 'DEVOLVIDO', data_hora, data_hora, data_hora, 0)
     insert_emprestimo(db_conection, 1, 2, 2, 'DEVOLVIDO', data_hora, data_hora, data_hora, 1)

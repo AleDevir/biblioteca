@@ -7,8 +7,8 @@ import pytest
 from sqlite3 import Cursor
 from src.db.conexao_db import get_conexao_db
 from src.db.autor_livro_db import (
-    get_by_autor,
-    get_by_livro,
+    get_autores_by_autor_id,
+    get_autores_by_livro_id,
     get_by_pk,
     insert_autores_livros,
     delete_autores_livros,
@@ -40,7 +40,7 @@ def test_get_by_autor(
     pytest tests/db/test_autor_livro.py::test_get_by_autor -vv
     '''
     try:
-        dados = get_by_autor(db_conection, autor_id)
+        dados = get_autores_by_autor_id(db_conection, autor_id)
         assert dados
         assert isinstance(dados, list)
         assert len(dados) == len(livros_ids)
@@ -73,7 +73,7 @@ def test_get_by_livro(
     pytest tests/db/test_autor_livro.py::test_get_by_livro -vv
     '''
     try:
-        dados = get_by_livro(db_conection, livro_id)
+        dados = get_autores_by_livro_id(db_conection, livro_id)
         assert dados
         assert isinstance(dados, list)
         assert len(dados) == len(autores_ids)
@@ -117,13 +117,13 @@ def test_add(db_conection: Cursor):
         assert um_registro['livro_id'] == livro_id
 
         # por Autores
-        por_autores = get_by_autor(db_conection, autor_id)
+        por_autores = get_autores_by_autor_id(db_conection, autor_id)
         assert por_autores
         for dado in por_autores:
             assert dado['autor_id'] == autor_id
 
         # por Livros
-        por_livros = get_by_livro(db_conection, livro_id)
+        por_livros = get_autores_by_livro_id(db_conection, livro_id)
         assert por_livros
         for dado in por_livros:
             assert dado['livro_id'] == livro_id

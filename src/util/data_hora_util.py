@@ -3,6 +3,22 @@ Data e hora
 '''
 from datetime import datetime
 
+def get_now() -> datetime:
+    '''
+    Retorna datetime now só com a data.
+    '''
+    agora = datetime.now()
+    return datetime(agora.year, agora.month, agora.day, agora.hour, agora.minute, agora.second)
+
+
+def get_date() -> datetime:
+    '''
+    Retorna datetime now só com a data.
+    '''
+    agora = datetime.now()
+    return datetime(agora.year, agora.month, agora.day)
+
+
 def converter_em_data_e_hora(data_str: str, formatacao: str = '%Y-%m-%d %H:%M:%S') -> datetime:
     '''
     Converte o TEXTO em data e hora ex: 29/06/2024 09:26
@@ -21,7 +37,6 @@ def converter_timestamp_to_datetime(timestamp: float | int | str | datetime) -> 
         return datetime.fromtimestamp(float(timestamp))
         #return converter_em_data_e_hora(timestamp)
     return datetime.fromtimestamp(timestamp)
-
 
 
 def formatar_data_e_hora(data_hora: datetime = datetime.now()) -> str:
